@@ -539,7 +539,7 @@ class XojoSyntaxColorizer {
 			);
 			
 			$replacements = array(
-				'<span style="font-family: \'source-code-pro\', \'menlo\', \'courier\', monospace; color: #' . $this->color_text . ';">',
+				'<span style="font-family: \'source-code-pro\', \'menlo\', \'courier\', monospace; color: ' . $this->color_text . ';">',
 				'<span style="color: ' . $this->color_keyword . ';">',
 				'<span style="color: ' . $this->color_integer . ';">',
 				'<span style="color: ' . $this->color_real . ';">',
@@ -558,7 +558,7 @@ class XojoSyntaxColorizer {
 	public function GetStylesheet () {
 		$lines = array(
 			'<style type="text/css">',
-			'	span.xojo_code_text { font-family: "source-code-pro", "menlo", "courier", monospace; color: #' . $this->color_text . '; }',
+			'	span.xojo_code_text { font-family: "source-code-pro", "menlo", "courier", monospace; color: ' . $this->color_text . '; }',
 			'	span.xojo_code_keyword { color: ' . $this->color_keyword . '; }',
 			'	span.xojo_code_integer { color: ' . $this->color_integer . '; }',
 			'	span.xojo_code_real { color: ' . $this->color_real . '; }',
