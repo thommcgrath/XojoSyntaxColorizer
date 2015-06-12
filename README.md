@@ -40,7 +40,7 @@ $colors = array(
 	'integer' => '#336698',
 	'real' => '#006633',
 	'string' => '#6600FE',
-	'comment' => #800000'
+	'comment' => '#800000'
 );
 $colorizer = new XojoSyntaxColorizer('Dim Message As Text = "Hello World"', $colors);
 ```
