@@ -1,5 +1,5 @@
-# xojo-syntax-coloring-php
-PHP library for converting Xojo code into colored HTML
+# XojoSyntaxColorizer
+PHP class for converting Xojo code into colored HTML.
 
 ## Basic Usage
 Simply include lib.xojocode.php and use
