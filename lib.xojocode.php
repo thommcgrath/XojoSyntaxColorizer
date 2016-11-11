@@ -16,6 +16,9 @@ class XojoSyntaxColorizer {
 	private $color_real = '#006633';
 	private $color_string = '#6600FE';
 	private $color_comment = '#800000';
+	private $color_rgb_red = '#FF0000';
+	private $color_rgb_green = '#00BB00';
+	private $color_rgb_blue = '#0000FF';
 	
 	private $source = '';
 	
@@ -457,9 +460,9 @@ class XojoSyntaxColorizer {
 						$color = substr($tokens[$i],6);
 						$tokens[$i] = "";
 						$output .= "&amp;c";
-						$output .= '<span style="color: #FF0000;">' . substr($color, 0, 2) . '</span>';
-						$output .= '<span style="color: #00BB00;">' . substr($color, 2, 2) . '</span>';
-						$output .= '<span style="color: #0000FF;">' . substr($color, 4, 2) . '</span>';
+						$output .= '<span class="xojo_code_rgb_red">' . substr($color, 0, 2) . '</span>';
+						$output .= '<span class="xojo_code_rgb_green">' . substr($color, 2, 2) . '</span>';
+						$output .= '<span class="xojo_code_rgb_blue">' . substr($color, 4, 2) . '</span>';
 					}
 				}
 				// If we're not in a comment, we do a cheap check for line continuation
@@ -535,7 +538,10 @@ class XojoSyntaxColorizer {
 				'<span class="xojo_code_integer">',
 				'<span class="xojo_code_real">',
 				'<span class="xojo_code_string">',
-				'<span class="xojo_code_comment">'
+				'<span class="xojo_code_comment">',
+				'<span class="xojo_code_rgb_red">',
+				'<span class="xojo_code_rgb_green">',
+				'<span class="xojo_code_rgb_blue">'
 			);
 			
 			$replacements = array(
@@ -544,7 +550,10 @@ class XojoSyntaxColorizer {
 				'<span style="color: ' . $this->color_integer . ';">',
 				'<span style="color: ' . $this->color_real . ';">',
 				'<span style="color: ' . $this->color_string . ';">',
-				'<span style="color: ' . $this->color_comment . ';">'
+				'<span style="color: ' . $this->color_comment . ';">',
+				'<span style="color: ' . $this->color_rgb_red . ';">',
+				'<span style="color: ' . $this->color_rgb_green . ';">',
+				'<span style="color: ' . $this->color_rgb_blue . ';">'
 			);
 			
 			$source = str_replace($needles, $replacements, $source);
@@ -564,6 +573,9 @@ class XojoSyntaxColorizer {
 			'	span.xojo_code_real { color: ' . $this->color_real . '; }',
 			'	span.xojo_code_string { color: ' . $this->color_string . '; }',
 			'	span.xojo_code_comment { color: ' . $this->color_comment . '; }',
+			'	span.xojo_code_rgb_red { color: ' . $this->color_rgb_red . '; }',
+			'	span.xojo_code_rgb_green { color: ' . $this->color_rgb_green . '; }',
+			'	span.xojo_code_rgb_blue { color: ' . $this->color_rgb_blue . '; }',
 			'</style>'
 		);
 		
@@ -579,7 +591,10 @@ class XojoSyntaxColorizer {
 			'integer' => $this->color_integer,
 			'real' => $this->color_real,
 			'string' => $this->color_string,
-			'comment' => $this->color_comment
+			'comment' => $this->color_comment,
+			'rgb_red' => $this->color_rgb_red,
+			'rgb_green' => $this->color_rgb_green,
+			'rgb_blue' => $this->color_rgb_blue
 		);
 	}
 	
@@ -601,6 +616,15 @@ class XojoSyntaxColorizer {
 		}
 		if (array_key_exists('comment', $colors)) {
 			$this->color_comment = $colors['comment'];
+		}
+		if (array_key_exists('rgb_red', $colors)) {
+			$this->color_rgb_red = $colors['rgb_red'];
+		}
+		if (array_key_exists('rgb_green', $colors)) {
+			$this->color_rgb_green = $colors['rgb_green'];
+		}
+		if (array_key_exists('rgb_blue', $colors)) {
+			$this->color_rgb_blue = $colors['rgb_blue'];
 		}
 	}
 	
