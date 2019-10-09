@@ -11,14 +11,24 @@ MIT License
      
 class XojoSyntaxColorizer {
 	private $color_text = '#000000';
-	private $color_keyword = '#0000FF';
+	private $color_keyword = '#0000ff';
 	private $color_integer = '#336698';
 	private $color_real = '#006633';
-	private $color_string = '#6600FE';
+	private $color_string = '#6600fe';
 	private $color_comment = '#800000';
-	private $color_rgb_red = '#FF0000';
-	private $color_rgb_green = '#00BB00';
-	private $color_rgb_blue = '#0000FF';
+	private $color_red = '#ff0000';
+	private $color_green = '#00bb00';
+	private $color_blue = '#0000ff';
+	
+	private $color_text_dark = '#ffffff';
+	private $color_keyword_dark = '#fc5fa2';
+	private $color_integer_dark = '#8b87ff';
+	private $color_real_dark = '#8b87ff';
+	private $color_string_dark = '#e08140';
+	private $color_comment_dark = '#3aa53f';
+	private $color_red_dark = '#fe5e49';
+	private $color_green_dark = '#36da5d';
+	private $color_blue_dark = '#009aff';
 	
 	private $source = '';
 	
@@ -30,7 +40,7 @@ class XojoSyntaxColorizer {
 	// IsNumerical returns 0 if the string isn't a number
 	// It returns 1 if it's an integer
 	// and returns 2 if it's a double
-	private static function IsNumerical ($theString) {
+	private static function IsNumerical($theString) {
 		// An empty string isn't a number :P
 		$len = strlen($theString);
 		if ($len == 0) {
@@ -92,7 +102,7 @@ class XojoSyntaxColorizer {
 		return $type;
 	}
 	
-	private static function Generate ($source, $showLineNumbers = false, $lineBreak = "\n", $changeKeywordCase = false) {
+	protected static function Generate($source, $showLineNumbers = false, $lineBreak = "\n", $changeKeywordCase = false) {
 		// Trim the source code
 		$source = trim($source);
 		
@@ -112,7 +122,7 @@ class XojoSyntaxColorizer {
 			"#else" => "#Else", 
 			"#endif" => "#EndIf",
 			"#if" => "#If", 
-			"#pragma" => "#pragma",
+			"#pragma" => "#Pragma",
 			"#tag" => "#tag",
 			"addhandler" => "AddHandler",
 			"addressof" => "AddressOf",
@@ -198,6 +208,8 @@ class XojoSyntaxColorizer {
 			"true" => "True",
 			"try" => "Try",
 			"until" => "Until",
+			"using" => "Using",
+			"var" => "Var",
 			"weakaddressof" => "WeakAddressOf",
 			"wend" => "Wend",
 			"while" => "While",
@@ -230,7 +242,6 @@ class XojoSyntaxColorizer {
 			"cfstringref" => "CFStringRef",
 			"windowptr" => "WindowPtr",
 			"ostype" => "OSType",
-			"auto" => "Auto",
 			"text" => "Text",
 			
 			// XML Utilites only
@@ -257,8 +268,7 @@ class XojoSyntaxColorizer {
 		$output .= '<span class="xojo_code_text">';
 		$isInInterface = false;
 		// Iterate over each line
-		while (list($lineNumber,$line) = each($lines))
-		{
+		foreach ($lines as $lineNumber => $line) {
 			if (!$lastLineHadLineContinuationCharacter) {
 				$isIfLine = false;
 				$endedWithThen = false;
@@ -511,24 +521,24 @@ class XojoSyntaxColorizer {
 		return $output;
 	}
 	
-	function __construct ($source, $colors = array()) {
+	function __construct($source, $colors = array()) {
 		$this->SetSource($source);
 		$this->SetColors($colors);
 	}
 	
 	// The Xojo source code to generate from.
 	
-	function GetSource () {
+	function GetSource() {
 		return $this->source;
 	}
 	
-	function SetSource ($source) {
+	function SetSource($source) {
 		$this->source = $source;
 	}
 	
 	// Builds the html from the current source.
 	
-	public function GetHTML () {
+	public function GetHTML(bool $dark = false) {
 		$source = self::Generate($this->source, $this->showLineNumbers, $this->lineBreak, $this->changeKeywordCase);
 		
 		if (!$this->useStylesheet) {
@@ -545,15 +555,15 @@ class XojoSyntaxColorizer {
 			);
 			
 			$replacements = array(
-				'<span style="font-family: \'source-code-pro\', \'menlo\', \'courier\', monospace; color: ' . $this->color_text . ';">',
-				'<span style="color: ' . $this->color_keyword . ';">',
-				'<span style="color: ' . $this->color_integer . ';">',
-				'<span style="color: ' . $this->color_real . ';">',
-				'<span style="color: ' . $this->color_string . ';">',
-				'<span style="color: ' . $this->color_comment . ';">',
-				'<span style="color: ' . $this->color_rgb_red . ';">',
-				'<span style="color: ' . $this->color_rgb_green . ';">',
-				'<span style="color: ' . $this->color_rgb_blue . ';">'
+				'<span style="font-family: \'source-code-pro\', \'menlo\', \'courier\', monospace; color: ' . $this->GetTextColor($dark) . ';">',
+				'<span style="color: ' . $this->GetKeywordColor($dark) . ';">',
+				'<span style="color: ' . $this->GetIntegerColor($dark) . ';">',
+				'<span style="color: ' . $this->GetRealColor($dark) . ';">',
+				'<span style="color: ' . $this->GetStringColor($dark) . ';">',
+				'<span style="color: ' . $this->GetCommentColor($dark) . ';">',
+				'<span style="color: ' . $this->GetRedColor($dark) . ';">',
+				'<span style="color: ' . $this->GetGreenColor($dark) . ';">',
+				'<span style="color: ' . $this->GetBlueColor($dark) . ';">'
 			);
 			
 			$source = str_replace($needles, $replacements, $source);
@@ -564,7 +574,7 @@ class XojoSyntaxColorizer {
 	
 	// Returns a stylesheet for the currently defined colors.
 	
-	public function GetStylesheet () {
+	public function GetStylesheet() {
 		$lines = array(
 			'<style type="text/css">',
 			'	span.xojo_code_text { font-family: "source-code-pro", "menlo", "courier", monospace; color: ' . $this->color_text . '; }',
@@ -573,9 +583,19 @@ class XojoSyntaxColorizer {
 			'	span.xojo_code_real { color: ' . $this->color_real . '; }',
 			'	span.xojo_code_string { color: ' . $this->color_string . '; }',
 			'	span.xojo_code_comment { color: ' . $this->color_comment . '; }',
-			'	span.xojo_code_rgb_red { color: ' . $this->color_rgb_red . '; }',
-			'	span.xojo_code_rgb_green { color: ' . $this->color_rgb_green . '; }',
-			'	span.xojo_code_rgb_blue { color: ' . $this->color_rgb_blue . '; }',
+			'	span.xojo_code_rgb_red { color: ' . $this->color_red . '; }',
+			'	span.xojo_code_rgb_green { color: ' . $this->color_green . '; }',
+			'	span.xojo_code_rgb_blue { color: ' . $this->color_blue . '; }',
+			'	@media (prefers-color-scheme: dark) {',
+			'		span.xojo_code_keyword { color: ' . $this->color_keyword_dark . '; }',
+			'		span.xojo_code_integer { color: ' . $this->color_integer_dark . '; }',
+			'		span.xojo_code_real { color: ' . $this->color_real_dark . '; }',
+			'		span.xojo_code_string { color: ' . $this->color_string_dark . '; }',
+			'		span.xojo_code_comment { color: ' . $this->color_comment_dark . '; }',
+			'		span.xojo_code_rgb_red { color: ' . $this->color_red_dark . '; }',
+			'		span.xojo_code_rgb_green { color: ' . $this->color_green_dark . '; }',
+			'		span.xojo_code_rgb_blue { color: ' . $this->color_blue_dark . '; }',
+			'	}',
 			'</style>'
 		);
 		
@@ -584,142 +604,202 @@ class XojoSyntaxColorizer {
 	
 	// Get and set colors
 	
-	public function GetColors () {
+	public function GetColors(bool $dark = false) {
 		return array(
-			'text' => $this->color_text,
-			'keyword' => $this->color_keyword,
-			'integer' => $this->color_integer,
-			'real' => $this->color_real,
-			'string' => $this->color_string,
-			'comment' => $this->color_comment,
-			'rgb_red' => $this->color_rgb_red,
-			'rgb_green' => $this->color_rgb_green,
-			'rgb_blue' => $this->color_rgb_blue
+			'text' => $this->GetTextColor($dark),
+			'keyword' => $this->GetKeywordColor($dark),
+			'integer' => $this->GetIntegerColor($dark),
+			'real' => $this->GetRealColor($dark),
+			'string' => $this->GetStringColor($dark),
+			'comment' => $this->GetCommentColor($dark),
+			'rgb_red' => $this->GetRedColor($dark),
+			'rgb_green' => $this->GetGreenColor($dark),
+			'rgb_blue' => $this->GetBlueColor($dark)
 		);
 	}
 	
-	public function SetColors ($colors) {
+	public function SetColors(array $colors, bool $dark = false) {
 		if (array_key_exists('text', $colors)) {
-			$this->color_text = $colors['text'];
+			$this->SetTextColor($colors['text'], $dark);
 		}
 		if (array_key_exists('keyword', $colors)) {
-			$this->color_keyword = $colors['keyword'];
+			$this->SetKeywordColor($colors['keyword'], $dark);
 		}
 		if (array_key_exists('integer', $colors)) {
-			$this->color_integer = $colors['integer'];
+			$this->SetIntegerColor($colors['integer'], $dark);
 		}
 		if (array_key_exists('real', $colors)) {
-			$this->color_real = $colors['real'];
+			$this->SetRealColor($colors['real'], $dark);
 		}
 		if (array_key_exists('string', $colors)) {
-			$this->color_string = $colors['string'];
+			$this->SetStringColor($colors['string'], $dark);
 		}
 		if (array_key_exists('comment', $colors)) {
-			$this->color_comment = $colors['comment'];
+			$this->SetCommentColor($colors['comment'], $dark);
 		}
 		if (array_key_exists('rgb_red', $colors)) {
-			$this->color_rgb_red = $colors['rgb_red'];
+			$this->SetRedColor($colors['rgb_red'], $dark);
 		}
 		if (array_key_exists('rgb_green', $colors)) {
-			$this->color_rgb_green = $colors['rgb_green'];
+			$this->SetGreenColor($colors['rgb_green'], $dark);
 		}
 		if (array_key_exists('rgb_blue', $colors)) {
-			$this->color_rgb_blue = $colors['rgb_blue'];
+			$this->SetBlueColor($colors['rgb_blue'], $dark);
 		}
 	}
 	
-	public function GetTextColor () {
-		return $this->color_text;
+	public function GetTextColor(bool $dark = false) {
+		return $dark ? $this->color_text_dark : $this->color_text;
 	}
 	
-	public function SetTextColor ($color) {
-		$this->color_text = $color;
+	public function SetTextColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_text_dark = $color;
+		} else {
+			$this->color_text = $color;
+		}
 	}
 	
-	public function GetKeywordColor () {
-		return $this->color_keyword;
+	public function GetKeywordColor(bool $dark = false) {
+		return $dark ? $this->color_keyword_dark : $this->color_keyword;
 	}
 	
-	public function SetKeywordColor ($color) {
-		$this->color_keyword = $color;
+	public function SetKeywordColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_keyword_dark = $color;
+		} else {
+			$this->color_keyword = $color;
+		}
 	}
 	
-	public function GetIntegerColor () {
-		return $this->color_integer;
+	public function GetIntegerColor(bool $dark = false) {
+		return $dark ? $this->color_integer_dark : $this->color_integer;
 	}
 	
-	public function SetIntegerColor ($color) {
-		$this->color_integer = $color;
+	public function SetIntegerColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_integer_dark = $color;
+		} else {
+			$this->color_integer = $color;
+		}
 	}
 	
-	public function GetRealColor () {
-		return $this->color_real;
+	public function GetRealColor(bool $dark = false) {
+		return $dark ? $this->color_real_dark : $this->color_real;
 	}
 	
-	public function SetRealColor ($color) {
-		$this->color_real = $color;
+	public function SetRealColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_real_dark = $color;
+		} else {
+			$this->color_real = $color;
+		}
 	}
 	
-	public function GetStringColor () {
-		return $this->color_string;
+	public function GetStringColor(bool $dark = false) {
+		return $dark ? $this->color_string_dark : $this->color_string;
 	}
 	
-	public function SetStringColor ($color) {
-		$this->color_string = $color;
+	public function SetStringColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_string_dark = $color;
+		} else {
+			$this->color_string = $color;
+		}
 	}
 	
-	public function GetCommentColor () {
-		return $this->color_comment;
+	public function GetCommentColor(bool $dark = false) {
+		return $dark ? $this->color_comment_dark : $this->color_comment;
 	}
 	
-	public function SetCommentColor ($color) {
-		$this->color_comment = $color;
+	public function SetCommentColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_comment_dark = $color;
+		} else {
+			$this->color_comment = $color;
+		}
+	}
+	
+	public function GetRedColor(bool $dark = false) {
+		return $dark ? $this->color_red_dark : $this->color_red;
+	}
+	
+	public function SetRedColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_red_dark = $color;
+		} else {
+			$this->color_red = $color;
+		}
+	}
+	
+	public function GetGreenColor(bool $dark = false) {
+		return $dark ? $this->color_green_dark : $this->color_green;
+	}
+	
+	public function SetGreenColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_green_dark = $color;
+		} else {
+			$this->color_green = $color;
+		}
+	}
+	
+	public function GetBlueColor(bool $dark = false) {
+		return $dark ? $this->color_blue_dark : $this->color_blue;
+	}
+	
+	public function SetBlueColor(string $color, bool $dark = false) {
+		if ($dark) {
+			$this->color_blue_dark = $color;
+		} else {
+			$this->color_blue = $color;
+		}
 	}
 	
 	// InclueLineNumbers, when enabled, adds line numbers to be beginning of each line of output.
 	
-	public function GetIncludeLineNumbers () {
+	public function GetIncludeLineNumbers() {
 		return $this->showLineNumbers;
 	}
 	
-	public function SetIncludeLineNumbers ($value) {
+	public function SetIncludeLineNumbers($value) {
 		$this->showLineNumbers = ($value == true);
 	}
 	
 	// LineBreakCharacter is the character inserted between lines.
 	
-	public function GetLineBreakCharacter () {
+	public function GetLineBreakCharacter() {
 		return $this->lineBreak;
 	}
 	
-	public function SetLineBreakCharacter ($character) {
+	public function SetLineBreakCharacter($character) {
 		$this->lineBreak = $character;
 	}
 	
 	// StandardKeywordCase, when enabled, changes all keywords to their titlecase equivalents.
 	
-	public function GetStandardizeKeywordCase () {
+	public function GetStandardizeKeywordCase() {
 		return $this->changeKeywordCase;
 	}
 	
-	public function SetStandardizeKeywordCase ($value) {
+	public function SetStandardizeKeywordCase($value) {
 		$this->changeKeywordCase = ($value == true);
 	}
 	
 	// UseStylesheet, when enabled, uses CSS classes instead of style attributes.
 	
-	public function GetUseStylesheet () {
+	public function GetUseStylesheet() {
 		return $this->useStylesheet;
 	}
 	
-	public function SetUseStylesheet ($value) {
+	public function SetUseStylesheet($value) {
 		$this->useStylesheet = ($value == true);
 	}
 }
 
 // Alias function for the old FormatRBCode. Colors are respected and a stylesheet is not used,
 // just like the original FormatRBCode.
-function FormatRBCode ($source, $showLineNumbers = false, $lineBreak = "<br />", $colors = array(), $changeKeywordCase = false) {
+function FormatRBCode($source, $showLineNumbers = false, $lineBreak = "<br />", $colors = array(), $changeKeywordCase = false) {
 	foreach ($colors as $key => $value) {
 		$colors[$key] = substr($value, 0, 1) == '#' ? $value : '#' . $value;
 	}
@@ -742,7 +822,7 @@ function FormatXojoCode($source, $showLineNumbers = false, $lineBreak = "\n", $c
 }
 
 // Alias function to retrieve a stylesheet from an array of color values.
-function XojoCodeStylesheet ($colors = array()) {
+function XojoCodeStylesheet($colors = array()) {
 	foreach ($colors as $key => $value) {
 		$colors[$key] = substr($value, 0, 1) == '#' ? $value : '#' . $value;
 	}
