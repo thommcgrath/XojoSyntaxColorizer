@@ -10,6 +10,10 @@ MIT License
 */
      
 class XojoSyntaxColorizer {
+	const DEFINE_AS_ORIGINAL = '';
+	const DEFINE_WITH_DIM = 'Dim';
+	const DEFINE_WITH_VAR = 'Var';
+	
 	private $color_text = '#000000';
 	private $color_keyword = '#0000ff';
 	private $color_integer = '#336698';
@@ -36,11 +40,12 @@ class XojoSyntaxColorizer {
 	private $lineBreak = "\n";
 	private $changeKeywordCase = true;
 	private $useStylesheet = true;
+	private $variableDefinitionStyle = self::DEFINE_AS_ORIGINAL;
 	
 	// IsNumerical returns 0 if the string isn't a number
 	// It returns 1 if it's an integer
 	// and returns 2 if it's a double
-	private static function IsNumerical($theString) {
+	private static function IsNumerical(string $theString) {
 		// An empty string isn't a number :P
 		$len = strlen($theString);
 		if ($len == 0) {
@@ -102,7 +107,7 @@ class XojoSyntaxColorizer {
 		return $type;
 	}
 	
-	protected static function Generate($source, $showLineNumbers = false, $lineBreak = "\n", $changeKeywordCase = false) {
+	protected static function Generate(string $source, bool $showLineNumbers = false, string $lineBreak = "\n", bool $changeKeywordCase = false, string $variableDefinitionStyle = self::DEFINE_AS_ORIGINAL) {
 		// Trim the source code
 		$source = trim($source);
 		
@@ -142,7 +147,7 @@ class XojoSyntaxColorizer {
 			"ctype" => "CType",
 			"declare" => "Declare",
 			"delegate" => "Delegate",
-			"dim" => "Dim",
+			"dim" => ($variableDefinitionStyle === self::DEFINE_AS_ORIGINAL || $variableDefinitionStyle == self::DEFINE_WITH_DIM) ?	"Dim" : "Var",
 			"do" => "Do",
 			"downto" => "DownTo",
 			"each" => "Each",
@@ -209,7 +214,7 @@ class XojoSyntaxColorizer {
 			"try" => "Try",
 			"until" => "Until",
 			"using" => "Using",
-			"var" => "Var",
+			"var" => ($variableDefinitionStyle === self::DEFINE_AS_ORIGINAL || $variableDefinitionStyle == self::DEFINE_WITH_VAR) ?	"Var" : "Dim",
 			"weakaddressof" => "WeakAddressOf",
 			"wend" => "Wend",
 			"while" => "While",
@@ -521,7 +526,7 @@ class XojoSyntaxColorizer {
 		return $output;
 	}
 	
-	function __construct($source, $colors = array()) {
+	function __construct(string $source, array $colors = array()) {
 		$this->SetSource($source);
 		$this->SetColors($colors);
 	}
@@ -532,14 +537,14 @@ class XojoSyntaxColorizer {
 		return $this->source;
 	}
 	
-	function SetSource($source) {
+	function SetSource(string $source) {
 		$this->source = $source;
 	}
 	
 	// Builds the html from the current source.
 	
 	public function GetHTML(bool $dark = false) {
-		$source = self::Generate($this->source, $this->showLineNumbers, $this->lineBreak, $this->changeKeywordCase);
+		$source = self::Generate($this->source, $this->showLineNumbers, $this->lineBreak, $this->changeKeywordCase, $this->variableDefinitionStyle);
 		
 		if (!$this->useStylesheet) {
 			$needles = array(
@@ -762,7 +767,7 @@ class XojoSyntaxColorizer {
 		return $this->showLineNumbers;
 	}
 	
-	public function SetIncludeLineNumbers($value) {
+	public function SetIncludeLineNumbers(bool $value) {
 		$this->showLineNumbers = ($value == true);
 	}
 	
@@ -772,7 +777,7 @@ class XojoSyntaxColorizer {
 		return $this->lineBreak;
 	}
 	
-	public function SetLineBreakCharacter($character) {
+	public function SetLineBreakCharacter(string $character) {
 		$this->lineBreak = $character;
 	}
 	
@@ -782,7 +787,7 @@ class XojoSyntaxColorizer {
 		return $this->changeKeywordCase;
 	}
 	
-	public function SetStandardizeKeywordCase($value) {
+	public function SetStandardizeKeywordCase(bool $value) {
 		$this->changeKeywordCase = ($value == true);
 	}
 	
@@ -792,14 +797,33 @@ class XojoSyntaxColorizer {
 		return $this->useStylesheet;
 	}
 	
-	public function SetUseStylesheet($value) {
+	public function SetUseStylesheet(bool $value) {
 		$this->useStylesheet = ($value == true);
+	}
+	
+	// This feature determines are variables are defined
+	
+	public function GetDefinitionStyle() {
+		return $this->variableDefinitionStyle;
+	}
+	
+	public function SetDefinitionStlye(string $style) {
+		switch ($style) {
+		case self::DEFINE_WITH_DIM:
+			break;
+		case self::DEFINE_WITH_VAR:
+			break;
+		default:
+			$style = self::DEFINE_AS_ORIGINAL;
+			break;
+		}
+		$this->variableDefinitionStyle = $style;
 	}
 }
 
 // Alias function for the old FormatRBCode. Colors are respected and a stylesheet is not used,
 // just like the original FormatRBCode.
-function FormatRBCode($source, $showLineNumbers = false, $lineBreak = "<br />", $colors = array(), $changeKeywordCase = false) {
+function FormatRBCode(string $source, bool $showLineNumbers = false, string $lineBreak = "<br />", array $colors = array(), bool $changeKeywordCase = false) {
 	foreach ($colors as $key => $value) {
 		$colors[$key] = substr($value, 0, 1) == '#' ? $value : '#' . $value;
 	}
@@ -813,7 +837,7 @@ function FormatRBCode($source, $showLineNumbers = false, $lineBreak = "<br />", 
 }
 
 // Alias function for the newer FormatXojoCode, which does use a stylesheet.
-function FormatXojoCode($source, $showLineNumbers = false, $lineBreak = "\n", $changeKeywordCase = false) {
+function FormatXojoCode(string $source, bool $showLineNumbers = false, string $lineBreak = "\n", bool $changeKeywordCase = false) {
 	$colorizer = new XojoSyntaxColorizer($source);
 	$colorizer->SetIncludeLineNumbers($showLineNumbers);
 	$colorizer->SetLineBreakCharacter($lineBreak);
@@ -822,7 +846,7 @@ function FormatXojoCode($source, $showLineNumbers = false, $lineBreak = "\n", $c
 }
 
 // Alias function to retrieve a stylesheet from an array of color values.
-function XojoCodeStylesheet($colors = array()) {
+function XojoCodeStylesheet(array $colors = array()) {
 	foreach ($colors as $key => $value) {
 		$colors[$key] = substr($value, 0, 1) == '#' ? $value : '#' . $value;
 	}
