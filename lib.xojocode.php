@@ -14,6 +14,10 @@ class XojoSyntaxColorizer {
 	const DEFINE_WITH_DIM = 'Dim';
 	const DEFINE_WITH_VAR = 'Var';
 	
+	const COLORS_AUTOMATIC = 'auto';
+	const COLORS_LIGHT = 'light';
+	const COLORS_DARK = 'dark';
+	
 	private $color_text = '#000000';
 	private $color_keyword = '#0000ff';
 	private $color_integer = '#336698';
@@ -39,7 +43,7 @@ class XojoSyntaxColorizer {
 	private $showLineNumbers = false;
 	private $lineBreak = "\n";
 	private $changeKeywordCase = true;
-	private $useStylesheet = true;
+	private $colorMode = self::COLORS_AUTOMATIC;
 	private $variableDefinitionStyle = self::DEFINE_AS_ORIGINAL;
 	
 	// IsNumerical returns 0 if the string isn't a number
@@ -543,10 +547,12 @@ class XojoSyntaxColorizer {
 	
 	// Builds the html from the current source.
 	
-	public function GetHTML(bool $dark = false) {
+	public function GetHTML() {
 		$source = self::Generate($this->source, $this->showLineNumbers, $this->lineBreak, $this->changeKeywordCase, $this->variableDefinitionStyle);
 		
-		if (!$this->useStylesheet) {
+		if ($this->colorMode != self::COLORS_AUTOMATIC) {
+			$dark = $this->colorMode == self::COLORS_DARK;
+			
 			$needles = array(
 				'<span class="xojo_code_text">',
 				'<span class="xojo_code_keyword">',
@@ -792,16 +798,36 @@ class XojoSyntaxColorizer {
 	}
 	
 	// UseStylesheet, when enabled, uses CSS classes instead of style attributes.
+	// This option is deprecated. Use ColorMode instead.
 	
 	public function GetUseStylesheet() {
-		return $this->useStylesheet;
+		return $this->colorMode == self::COLORS_AUTOMATIC;
 	}
 	
 	public function SetUseStylesheet(bool $value) {
-		$this->useStylesheet = ($value == true);
+		$this->colorMode = $value ? self::COLORS_AUTOMATIC : self::COLORS_LIGHT;
 	}
 	
-	// This feature determines are variables are defined
+	// ColorMode: Use with the COLORS constants to define how colors should be used in the html
+	
+	public function GetColorMode() {
+		return $this->colorMode;
+	}
+	
+	public function SetColorMode(string $mode) {
+		switch ($mode) {
+		case self::COLORS_LIGHT:
+			break;
+		case self::COLORS_DARK:
+			break;
+		default:
+			$mode = self::COLORS_AUTOMATIC;
+			break;
+		}
+		$this->colorMode = $mode;
+	}
+	
+	// DefinitionStyle: Determines are variables are defined
 	
 	public function GetDefinitionStyle() {
 		return $this->variableDefinitionStyle;
@@ -832,7 +858,7 @@ function FormatRBCode(string $source, bool $showLineNumbers = false, string $lin
 	$colorizer->SetIncludeLineNumbers($showLineNumbers);
 	$colorizer->SetLineBreakCharacter($lineBreak);
 	$colorizer->SetStandardizeKeywordCase($changeKeywordCase);
-	$colorizer->SetUseStylesheet(false);
+	$colorizer->SetColorMode(XojoSyntaxColorizer::COLORS_LIGHT);
 	return $colorizer->GetHTML();
 }
 

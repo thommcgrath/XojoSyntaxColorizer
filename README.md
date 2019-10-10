@@ -75,18 +75,12 @@ $colorizer->SetColors($dark_colors, true);
 $text_color = $colorizer->GetTextColor(true);
 ```
 
-GetHTML also accepts the `dark` parameter, which will be used to determine which colors to output when not using a stylesheet.
-
-```php
-$html = $colorizer->GetHTML(true);
-```
-
 A few options are available, which are controlled with their Get and Set methods.
 
 - IncludeLineNumbers: Defaults to false. When enabled, line numbers are included in the output. Because these make the code difficult to copy and paste into the IDE, line numbers are not recommended.
 - LineBreakCharacter: Defaults to \n.
 - StandardizeKeywordCase: Defaults to true. When enabled, keywords will be titlecased.
-- UseStylesheet: Defaults to true. When enabled, the span elements will use class names instead of inline style attributes.
+- ColorMode: Uses the constants `COLORS_AUTOMATIC`, `COLORS_LIGHT`, or `COLORS_DARK` to determine how to generate the html colors. The default is `COLORS_AUTOMATIC`. When using `COLORS_AUTOMATIC`, the class will generate the html using `span` elements with CSS classes. Use `GetStylesheet` to generate the CSS with automatic activation of both light and dark variants depending on viewer preferences. Use `COLORS_LIGHT` or `COLORS_DARK` to force output of specific colors embedded into the `span` elements themselves.
 - DefinitionStyle: Uses the constants `DEFINE_AS_ORIGINAL`, `DEFINE_WITH_DIM`, or `DEFINE_WITH_VAR` to determine how variable definitions will be formatted. The default is `DEFINE_AS_ORIGINAL`.
 
 ## Backwards Compatibility
