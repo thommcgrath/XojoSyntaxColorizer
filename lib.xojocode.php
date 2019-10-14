@@ -124,6 +124,23 @@ class XojoSyntaxColorizer {
 		$source = str_replace( "&apos;", "'", $source );
 		$source = str_replace( "&amp;", "&", $source );
 		
+		if ($variableDefinitionStyle !== self::DEFINE_AS_ORIGINAL) {
+			if ($variableDefinitionStyle == self::DEFINE_WITH_VAR) {
+				$search = 'dim';
+				$replace = 'var';
+			} else {
+				$search = 'var';
+				$replace = 'dim';
+			}
+			
+			$source = preg_replace_callback('/^' . $search . '\b/im', function($matches) use ($replace) {
+				$i=0;
+				return join('', array_map(function($char) use ($matches, &$i) {
+					return ctype_lower($matches[0][$i++]) ? strtolower($char) : strtoupper($char);
+				}, str_split($replace)));
+			}, $source);
+		}
+		
 		// A list of keywords to highlight in blue.
 		$keywords = array(
 			"#elseif" => "#ElseIf",
@@ -151,7 +168,7 @@ class XojoSyntaxColorizer {
 			"ctype" => "CType",
 			"declare" => "Declare",
 			"delegate" => "Delegate",
-			"dim" => ($variableDefinitionStyle === self::DEFINE_AS_ORIGINAL || $variableDefinitionStyle == self::DEFINE_WITH_DIM) ?	"Dim" : "Var",
+			"dim" => "Dim",
 			"do" => "Do",
 			"downto" => "DownTo",
 			"each" => "Each",
@@ -218,7 +235,7 @@ class XojoSyntaxColorizer {
 			"try" => "Try",
 			"until" => "Until",
 			"using" => "Using",
-			"var" => ($variableDefinitionStyle === self::DEFINE_AS_ORIGINAL || $variableDefinitionStyle == self::DEFINE_WITH_VAR) ?	"Var" : "Dim",
+			"var" => "Var",
 			"weakaddressof" => "WeakAddressOf",
 			"wend" => "Wend",
 			"while" => "While",
